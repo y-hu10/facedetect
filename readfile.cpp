@@ -102,3 +102,93 @@ void histNormalize(unsigned char*img)
 		for(int j = 0;j < wid;j++)
 			*(img+i*wid+j) = fre[*(img+i*wid+j)];
 }
+
+void accumulativeGraph(unsigned char* img,int* resultimg)
+{
+	for(int i = 0;i < len;i++)
+		for(int j = 0;j < wid;j++)
+		{
+			if(i == 0&&j == 0)
+				*(resultimg) = *(img);
+			else if(i == 0)
+				*(resultimg+j) = *(img+j)+*(resultimg+j-1);
+			else if(j == 0)
+				*(resultimg+i*wid) = *(img+i*wid) + *(resultimg+(i-1)*wid);
+			else
+				*(resultimg+i*wid+j) = *(img+i*wid+j)+*(resultimg+(i-1)*wid+j)+*(resultimg+i*wid+j-1)-*(resultimg+(i-1)*wid+j-1);
+		}
+}
+
+void showgraph(int* img)
+{
+	for(int i = 0;i < len;i++)
+	{
+		for(int j = 0;j < wid;j++)
+		{
+			cout << (int)*(img+i*wid+j) << " ";
+		}
+		cout << endl;
+	}
+}
+
+void showgraph(unsigned char* img)
+{
+	for(int i = 0;i < len;i++)
+	{
+		for(int j = 0;j < wid;j++)
+		{
+			cout << (int)*(img+i*wid+j) << " ";
+		}
+		cout << endl;
+	}
+}
+
+void writeFeature(char* filename,int* feature,int feautureNum)
+{
+	ofstream of(filename,ios::binary|ios::app);
+	if(!of)
+		cout<<"error"<<endl;
+	for(int i = 0;i < feautureNum;i++)
+		of.write((char*)(feature+i),sizeof(int));
+	of.close();
+}
+
+void readFeature(char* filename,int* feature,int featureNum)
+{
+	ifstream iff(filename,ios::binary);
+	if(!iff)
+	{
+		cout<<"error"<<endl;
+		return;
+	}
+	int buff;
+
+
+	int num = 0;
+	while(iff.read((char*)&buff,sizeof(int)))
+	{
+		*(feature+num*featureNum) = buff;
+		for(int i = 1;i < featureNum;i++)
+		{
+			iff.read((char*)&buff,sizeof(int));
+			*(feature+num*featureNum+i) = buff;
+		}
+		num++;
+	}
+
+}
+
+void readsFeature(char* filename,double* e,int* p,int* index,double* threshold)
+{
+	int t_p,t_index;
+	double t_threshold,t_e;
+	ifstream iff(filename);
+	for(int i = 0;i < 200;i++)
+	{
+		iff>>t_e>>t_threshold>>t_p>>t_index;
+		*(e+i) = t_e;
+		*(threshold+i) = t_threshold;
+		*(p+i) = t_p;
+		*(index+i) = t_index;
+	}
+}
