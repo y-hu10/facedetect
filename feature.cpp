@@ -1,42 +1,43 @@
 #include "feature.h"
 
-int calRectFeature(int* img,int x1,int y1,int x2,int y2)
+int calRectFeature(int* img,int x1,int y1,int x2,int y2,int width,int length)
 {
 	if(x1 == 0&&y1 == 0)
-		return *(img+wid*x2+y2);
+		return *(img+width*x2+y2);
 	if(y1 == 0)
-		return *(img+wid*x2+y2)-*(img+wid*(x1-1)+y2);
+		return *(img+width*x2+y2)-*(img+width*(x1-1)+y2);
 	if(x1 == 0)
-		return *(img+wid*x2+y2)-*(img+wid*x2+y1-1);
+		return *(img+width*x2+y2)-*(img+width*x2+y1-1);
 	else
-		return *(img+wid*x2+y2)-*(img+wid*x2+y1-1)-*(img+wid*(x1-1)+y2)+*(img+wid*(x1-1)+y1-1);
+		return *(img+width*x2+y2)-*(img+width*x2+y1-1)-*(img+width*(x1-1)+y2)+*(img+width*(x1-1)+y1-1);
 
 }
 
-int calRectFeature1(int* img,int x1,int y1,int x2,int y2)
+int calRectFeature1(int* img,int x1,int y1,int x2,int y2,int width,int length)
 {
 	int det = floor((x2-x1)/2);
-	return calRectFeature(img,x1,y1,x1+det,y2)-calRectFeature(img,x1+det+1,y1,x2,y2);
+	return calRectFeature(img,x1,y1,x1+det,y2,width,length)-calRectFeature(img,x1+det+1,y1,x2,y2,width,length);
 }
 
-int calRectFeature2(int* img,int x1,int y1,int x2,int y2)
+int calRectFeature2(int* img,int x1,int y1,int x2,int y2,int width,int length)
 {
 	int det = floor((y2-y1)/2);
-	return -calRectFeature(img,x1,y1,x2,y1+det)+calRectFeature(img,x1,y1+det+1,x2,y2);
+	return -calRectFeature(img,x1,y1,x2,y1+det,width,length)+calRectFeature(img,x1,y1+det+1,x2,y2,width,length);
 }
 
-int calRectFeature3(int* img,int x1,int y1,int x2,int y2)
+int calRectFeature3(int* img,int x1,int y1,int x2,int y2,int width,int length)
 {
 	int det = (y2-y1+1)/3;
-	return -calRectFeature(img,x1,y1,x2,y1+det-1)+calRectFeature(img,x1,y1+det,x2,y1+det*2-1)-calRectFeature(img,x1,y1+det*2,x2,y2);
+	return -calRectFeature(img,x1,y1,x2,y1+det-1,width,length)+calRectFeature(img,x1,y1+det,x2,y1+det*2-1,width,length)
+		-calRectFeature(img,x1,y1+det*2,x2,y2,width,length);
 }
 
-int calRectFeature4(int* img,int x1,int y1,int x2,int y2)
+int calRectFeature4(int* img,int x1,int y1,int x2,int y2,int width,int length)
 {
 	int det1 = floor((x2-x1)/2);
 	int det2 = floor((y2-y1)/2);
-	return -calRectFeature(img,x1,y1,x1+det1,y1+det2)+calRectFeature(img,x1,y1+det2+1,x1+det1,y2)
-		+calRectFeature(img,x1+det1+1,y1,x2,y1+det2)-calRectFeature(img,x1+det1+1,y1+det2+1,x2,y2);
+	return -calRectFeature(img,x1,y1,x1+det1,y1+det2,width,length)+calRectFeature(img,x1,y1+det2+1,x1+det1,y2,width,length)
+		+calRectFeature(img,x1+det1+1,y1,x2,y1+det2,width,length)-calRectFeature(img,x1+det1+1,y1+det2+1,x2,y2,width,length);
 }
 
 void produceFeature(int* img,int* feature)
@@ -50,22 +51,22 @@ void produceFeature(int* img,int* feature)
 				 {
 					 if((m-i)%2==1)
 					 {
-						*(feature+num) = calRectFeature1(img,i,j,m,n);
+						*(feature+num) = calRectFeature1(img,i,j,m,n,wid,len);
 						num++;
 					 }
 					 if((n-j)%2==1)
 					 {
-						*(feature+num) = calRectFeature2(img,i,j,m,n);
+						*(feature+num) = calRectFeature2(img,i,j,m,n,wid,len);
 						num++;
 					 }
 					 if((n-j)%3==2)
 					 {
-						*(feature+num) = calRectFeature3(img,i,j,m,n);
+						*(feature+num) = calRectFeature3(img,i,j,m,n,wid,len);
 						num++;
 					 }
 					 if((m-i)%2==1&&(n-j)%2==1)
 					 {
-						*(feature+num) = calRectFeature4(img,i,j,m,n);
+						*(feature+num) = calRectFeature4(img,i,j,m,n,wid,len);
 						num++;
 					 }
 				 }
@@ -219,7 +220,6 @@ void updateWeight(int* feature,int* order,int* label,double* weight,int n,double
 {
 	double beta = e/(1.0-e),ei;
 	int index;
-	int sum = 0;
 	for(int i = 0;i < n;i++)
 	{
 /*
@@ -229,7 +229,6 @@ void updateWeight(int* feature,int* order,int* label,double* weight,int n,double
 			ei = 1.0;*/
 		index = *(order+i);
 		ei = p*(*(feature+i))<threhold*p == *(label+index);
-		sum += ei;
 		*(weight+index) = *(weight+index)*pow(beta,ei);
 	}
 	double totalweight = 0;
@@ -246,7 +245,8 @@ bool classify(int* feature,double* e,double* threshold,int* p,int* featureIndex)
 	{
 		beta = *(e+i)/(1.0-*(e+i));
 		at = log(1.0/beta);
-		sum1 += at*(*(p+i)*(*(feature+*(featureIndex+i)))<*(p+i)*(*(threshold+i)));
+		if((*(p+i)*(*(feature+*(featureIndex+i)))<*(p+i)*(*(threshold+i))))
+			sum1 += at;
 		sum2 += at;
 	}
 	if(sum1 > sum2/2)

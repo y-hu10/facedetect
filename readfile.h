@@ -12,7 +12,7 @@ using namespace cv;
 
 
 void readFile(char* filename,unsigned char* img);
-string* getFileName(char* DirectoryName);
+string* getFileList(char* DirectoryName);
 int getFileNumber(char* DirectoryName);
 void histNormalize(unsigned char* img);
 void accumulativeGraph(unsigned char* img,int *resultimg);

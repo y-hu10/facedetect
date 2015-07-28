@@ -12,11 +12,11 @@ using namespace cv;
 
 
 //Rect feature
-int calRectFeature(int* img,int x1,int y1,int x2,int y2);
-int calRectFeature1(int* img,int x1,int y1,int x2,int y2);
-int calRectFeature2(int* img,int x1,int y1,int x2,int y2);
-int calRectFeature3(int* img,int x1,int y1,int x2,int y2);
-int calRectFeature4(int* img,int x1,int y1,int x2,int y2);
+int calRectFeature(int* img,int x1,int y1,int x2,int y2,int width,int length);
+int calRectFeature1(int* img,int x1,int y1,int x2,int y2,int width,int length);
+int calRectFeature2(int* img,int x1,int y1,int x2,int y2,int width,int length);
+int calRectFeature3(int* img,int x1,int y1,int x2,int y2,int width,int length);
+int calRectFeature4(int* img,int x1,int y1,int x2,int y2,int width,int length);
 void produceFeature(int* img,int* feature);
 int featureList();
 

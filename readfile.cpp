@@ -1,6 +1,7 @@
 #include "readfile.h"
+#include "feature.h"
 
-void readFile(char* filename,unsigned char* img)
+void readFile(char* filename,unsigned char* img)  //read file named file name and get a char array
 {
 	ifstream infile;
 
@@ -14,7 +15,8 @@ void readFile(char* filename,unsigned char* img)
 	{
 		if(k >= 3)
 		{
-			*(img+k-3) = (char)((int)buff>0?(int)buff:128-(int)buff);
+/*			*(img+k-3) = (char)((int)buff>0?(int)buff:128-(int)buff);*/
+			*(img+k-3) = (unsigned char)(char)(int)buff;
 			k++;
 		}
 		else if(buff==(char)10)
@@ -63,7 +65,7 @@ int getFileNumber(char* DirectoryName)
 }
 
 
-string* getFileName(char* DirectoryName)
+string* getFileList(char* DirectoryName)
 {
 	DIR *dir;
 	struct dirent *ent;

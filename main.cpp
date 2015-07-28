@@ -1,25 +1,139 @@
-#include <opencv2/opencv.hpp>  
+/*#include <opencv2/opencv.hpp>  */
 #include <iostream>  
 #include <string>
 #include <fstream>
 #include <time.h>
 #include "readfile.h"
 #include "feature.h"
+//#include "test.h"
+#include "train.h"
 using namespace std;  
-using namespace cv;  
+/*using namespace cv;  */
 #define trainFacePath "train\\face\\"
 #define trainNotFacePath "train\\non-face\\"
+#define testFacePath "test\\face\\"
+#define testNotFacePath "test\\non-face\\"
 #define ColorLevel 256
 
 
 int main()
 {
-	int faceNumber = getFileNumber(trainFacePath);
-	int nonFaceNumber = getFileNumber(trainNotFacePath);
+	int* f_featureIndex = new int[200];
+	double* f_e = new double[200];
+	double* f_threshold = new double[200];
+	int* f_p = new int[200];
+	
+	
+
+	int faceNumber = getFileNumber(testFacePath);
+	int nonFaceNumber = getFileNumber(testNotFacePath);
 	int featureNum = featureList();
 	clock_t start,finish;
 	start = clock();
 
+
+/*
+	int length,width;
+	char* img;
+	getFigureSize("3.jpg",&length,&width);
+	img = new char[length*width];
+	readFigure("3.jpg",&length,&width,img);
+	figureFeature(img,6,length,width);*/
+
+	//training process
+	/*readFileProduceFeature(trainFacePath,featureNum,"train-face");
+	readFileProduceFeature(trainNotFacePath,featureNum,"train-non-face");
+	readFileProduceFeature(testFacePath,featureNum,"test-face");
+	readFileProduceFeature(testNotFacePath,featureNum,"test-non-face");
+
+	int* feature_face = new int[faceNumber*featureNum];
+	readFeature("train-face",feature_face,featureNum);
+
+	int* feature_nonface = new int[nonFaceNumber*featureNum];
+	readFeature("train-non-face",feature_nonface,featureNum);
+
+	int* label = new int[faceNumber+nonFaceNumber];
+	double* weight = new double[faceNumber+nonFaceNumber];
+	initWeight(weight,label,faceNumber,nonFaceNumber);
+
+	int* sfeatureMatrix = new int[(faceNumber+nonFaceNumber)*featureNum];
+	int* order = new int[(faceNumber+nonFaceNumber)*featureNum];
+
+	sortedFeatureMatrix(sfeatureMatrix,order,feature_face,feature_nonface,featureNum,faceNumber,nonFaceNumber); //sort feature
+
+	adaboost(sfeatureMatrix,label,weight,order,faceNumber+nonFaceNumber,featureNum,f_featureIndex,f_e,f_p,f_threshold);  //adaboost to select feature
+
+	writeTrainResult(f_featureIndex,f_e,f_p,f_threshold);*/
+
+	readFileProduceFeature(testFacePath,featureNum,"test-face");
+	int* feature_face = new int[faceNumber*featureNum];
+	readFeature("test-face",feature_face,featureNum);
+
+/*
+	int* feature_nonface = new int[nonFaceNumber*featureNum];
+	readFeature("train-non-face",feature_nonface,featureNum);*/
+
+	readsFeature("feature.txt",f_e,f_p,f_featureIndex,f_threshold);
+	int sum = 0;
+	for(int i = 0;i < faceNumber;i++)
+		if(classify(feature_face+i*featureNum,f_e,f_threshold,f_p,f_featureIndex))
+			sum++;
+	cout << sum << endl;
+/*
+	for(int i = 0;i < nonFaceNumber;i++)
+		if(!classify(feature_nonface+i*featureNum,f_e,f_threshold,f_p,f_featureIndex))
+			sum++;
+	cout << sum <<endl;*/
+
+	finish = clock();
+	cout << finish-start <<" "<<(double)(finish-start)/CLOCKS_PER_SEC<<endl;
+}
+	
+/*
+	int length,width;
+	char* img;
+	getFigureSize("1.jpg",&length,&width);
+	img = new char[length*width];
+	readFigure("1.jpg",&length,&width,img);
+	figureFeature(img,4,length,width);*/
+
+/*
+	int f_x1[48627],f_y1[48627],f_x2[48627],f_y2[48627],kind[48627];
+	int x1,y1,x2,y2,tkind;
+	char temp[2000];
+	ifstream iff("featureList.txt");
+	if(!iff)
+		cout<<"error"<<endl;
+	for(int i = 0;i < 48627;i++)
+	{
+		iff>>x1>>y1>>x2>>y2>>temp>>tkind;
+		f_x1[i] = x1;
+		f_y1[i] = y1;
+		f_x2[i] = x2;
+		f_y2[i] = y2;
+		kind[i] = tkind;
+	}
+	iff.close();
+
+	int* f_p = new int[200];
+	double* f_e = new double[200];
+	double* f_threshold = new double[200];
+	int* f_featureIndex = new int[200];
+	readsFeature("feature.txt",f_e,f_p,f_featureIndex,f_threshold);
+	int ff_x1[200],ff_y1[200],ff_x2[200],ff_y2[200],f_kind[200];
+	ofstream of("finalFeature.txt");
+	for(int i = 0;i < 200;i++)
+	{
+		ff_x1[i] = f_x1[f_featureIndex[i]];
+		ff_y1[i] = f_y1[f_featureIndex[i]];
+		ff_x2[i] = f_x2[f_featureIndex[i]];
+		ff_y2[i] = f_y2[f_featureIndex[i]];
+		f_kind[i] = kind[f_featureIndex[i]];
+		of<<ff_x1[i]<<" "<<ff_y1[i]<<" "<<ff_x2[i]<<" "<<ff_y2[i]<<" "<<f_kind[i]<<endl;
+	}
+	of.close();*/
+
+/*
 	int* feature_face = new int[faceNumber*featureNum];
 	readFeature("face",feature_face,featureNum);
 
@@ -40,7 +154,7 @@ int main()
 	for(int i = 0;i < nonFaceNumber;i++)
 		if(!classify(feature_nonface+i*featureNum,f_e,f_threshold,f_p,f_featureIndex))
 			sum++;
-	cout << sum<<endl;
+	cout << sum<<endl;*/
 /*
 	int* label = new int[faceNumber+nonFaceNumber];
 	double* weight = new double[faceNumber+nonFaceNumber];
@@ -93,9 +207,7 @@ int main()
 	of.close();*/
 	
 
-	finish = clock();
-	cout << finish-start <<" "<<(double)(finish-start)/CLOCKS_PER_SEC<<endl;
-}
+
 
 
 /*produce and write feature to file
